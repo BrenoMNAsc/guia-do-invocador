@@ -1,4 +1,3 @@
-import React from "react";
 import { Image, ScrollView, View, StyleSheet } from "react-native";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import {
@@ -8,21 +7,27 @@ import {
   Card,
   ActivityIndicator,
 } from "react-native-paper";
-import { useChampion } from "../hooks/useChampions";
 
-export default function ChampionScreen() {
+import { Champion } from "../types/domain";
+
+interface ChampionScreenProps {
+  champion: Champion;
+}
+export default function ChampionScreen({ champion }: ChampionScreenProps) {
   const route = useRoute<RouteProp<any>>();
   const id = (route.params as any)?.id as string;
-  const { loading, champion } = useChampion(id);
 
-  if (loading || !champion) {
-    return (
-      <View style={[styles.root, styles.center]}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
   const build = champion.builds[0];
+
+  const runeIcons = (build.runes || [])
+    .map((rid) => build.runes[rid]?.icon)
+    .filter(Boolean) as string[];
+  const itemSections: { label: string; ids: (number | string)[] }[] = [
+    { label: "Start", ids: build.items.start || [] },
+    { label: "Core", ids: build.items.core || [] },
+    { label: "Boots", ids: build.items.boots || [] },
+    { label: "Opcional", ids: build.items.optional || [] },
+  ];
 
   return (
     <ScrollView style={styles.root}>
@@ -39,33 +44,37 @@ export default function ChampionScreen() {
         <Divider style={{ marginVertical: 12 }} />
         <Text variant="titleMedium">Runas</Text>
         <View style={[styles.rowWrap, { marginTop: 8 }]}>
-          {build.runes.map((r, i) => (
-            <Card key={i} style={{ padding: 8, backgroundColor: "#2B2B2B" }}>
-              <Image
-                source={{ uri: r }}
-                style={{ width: 48, height: 48, borderRadius: 12 }}
-              />
+          {runeIcons.map((uri, i) => (
+            <Card key={i} style={styles.cardDark}>
+              <Image source={{ uri }} style={styles.square48} />
             </Card>
           ))}
         </View>
 
-        <Divider style={{ marginVertical: 12 }} />
-        <Text variant="titleMedium">Itens</Text>
-        <View style={[styles.rowWrap, { marginTop: 8 }]}>
-          {build.items.map((it, i) => (
-            <Card key={i} style={{ padding: 8, backgroundColor: "#2B2B2B" }}>
-              <Image
-                source={{ uri: it }}
-                style={{ width: 48, height: 48, borderRadius: 12 }}
-              />
-            </Card>
-          ))}
-        </View>
+        {itemSections.map((sec) => {
+          const icons = sec.ids
+            .map((iid) => itemsDb[iid]?.icon)
+            .filter(Boolean) as string[];
+          if (!icons.length) return null;
+          return (
+            <View key={sec.label} style={{ marginTop: 12 }}>
+              <Divider style={{ marginVertical: 12 }} />
+              <Text variant="titleMedium">{sec.label}</Text>
+              <View style={[styles.rowWrap, { marginTop: 8 }]}>
+                {icons.map((uri, i) => (
+                  <Card key={`${sec.label}-${i}`} style={styles.cardDark}>
+                    <Image source={{ uri }} style={styles.square48} />
+                  </Card>
+                ))}
+              </View>
+            </View>
+          );
+        })}
 
         <Divider style={{ marginVertical: 12 }} />
         <Text variant="titleMedium">Ordem de Habilidades</Text>
         <View style={[styles.rowWrap, { marginTop: 8 }]}>
-          {build.skills.split(">").map((s, i) => (
+          {(build.skillOrder || "").split(">").map((s, i) => (
             <Chip key={i} mode="outlined">
               {s}
             </Chip>
@@ -81,4 +90,6 @@ const styles = StyleSheet.create({
   pad: { padding: 16 },
   rowWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 as any },
   center: { alignItems: "center", justifyContent: "center" },
+  cardDark: { padding: 8, backgroundColor: "#2B2B2B" },
+  square48: { width: 48, height: 48, borderRadius: 12 },
 });

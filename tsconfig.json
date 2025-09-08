@@ -4,6 +4,7 @@
     "strict": true,
     "jsx": "react-jsx",
     "target": "ESNext",
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "moduleResolution": "bundler",
     "skipLibCheck": true
   },

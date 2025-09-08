@@ -1,61 +1,42 @@
-import * as React from "react";
-import { championsService } from "../services/championsService";
-import { Champion, Role } from "../types/domain";
+import { useEffect, useState } from "react";
+import { Champion, Filter } from "../types/domain";
+import { useDb } from "../context/dbContext";
 
 export function useChampions() {
-  const [loading, setLoading] = React.useState(true);
-  const [data, setData] = React.useState<Champion[]>([]);
-  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [filter, setFilter] = useState<Filter | undefined>(undefined);
+  const [data, setData] = useState<Champion[]>([]);
+  const db = useDb();
 
-  const reload = React.useCallback(async () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const list = await championsService.list();
-      setData(list);
-      setError(null);
-    } catch (e: any) {
-      setError(e?.message ?? "Erro ao carregar campeões");
+      const champions = db.champions.filter((champion) => {
+        if (filter?.name) {
+          const nameMatch = champion.name
+            .toLowerCase()
+            .includes(filter.name.toLowerCase());
+          if (!nameMatch) return false;
+        }
+        if (filter?.role) {
+          if (!champion.roles.includes(filter.role)) return false;
+        }
+        if (filter?.championClass) {
+          if (!champion.classes.includes(filter.championClass)) return false;
+        }
+        return true;
+      });
+      setData(champions);
+    } catch (error) {
+      console.error("Erro ao carregar campeões");
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  React.useEffect(() => {
-    reload();
-  }, [reload]);
+  useEffect(() => {
+    fetchData();
+  }, [filter]);
 
-  const filterBy = (q: string, role: Role | "All") =>
-    data.filter(
-      (c) =>
-        (role === "All" || c.role === role) &&
-        c.name.toLowerCase().includes(q.toLowerCase())
-    );
-
-  return { loading, error, data, reload, filterBy };
-}
-
-export function useChampion(id: string) {
-  const [loading, setLoading] = React.useState(true);
-  const [champion, setChampion] = React.useState<Champion | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        setLoading(true);
-        const c = await championsService.byId(id);
-        if (active) setChampion(c);
-      } catch (e: any) {
-        setError(e?.message ?? "Erro ao carregar campeão");
-      } finally {
-        setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  return { loading, error, champion };
+  return { loading, data, filter, setFilter, refetch: fetchData };
 }

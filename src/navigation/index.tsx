@@ -1,8 +1,6 @@
-import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
-import ChampionScreen from "../screens/ChampionScreen";
 import MapScreen from "../screens/MapScreen";
 import ShareBuildScreen from "../screens/ShareBuildScreen";
 
@@ -17,11 +15,11 @@ export default function RootNavigation() {
           component={HomeScreen}
           options={{ title: "Guia do Invocador" }}
         />
-        <Stack.Screen
-          name="Champion"
-          component={ChampionScreen}
-          options={{ title: "Build" }}
-        />
+        {/* <Stack.Screen
+            name="Champion"
+            component={ChampionScreen}
+            options={{ title: "Build" }}
+          /> */}
         <Stack.Screen
           name="Map"
           component={MapScreen}

@@ -1,6 +1,6 @@
 import React from "react";
 import { FlatList, View, StyleSheet } from "react-native";
-import { List, ActivityIndicator, Button, Text } from "react-native-paper";
+import { List, ActivityIndicator, Button } from "react-native-paper";
 import { useContacts } from "../hooks/useContacts";
 import { shareBuild } from "../utils/intents";
 
