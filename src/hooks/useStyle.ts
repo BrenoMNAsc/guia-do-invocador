@@ -1,4 +1,3 @@
-// src/hooks/useStyles.ts
 import { StyleSheet } from "react-native";
 import { useAppTheme } from "./useTheme";
 

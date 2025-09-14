@@ -1,17 +1,51 @@
-import { View, StyleSheet, Image, ImageBackground } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  ImageBackground,
+  Pressable,
+  type ImageSourcePropType,
+} from "react-native";
 import { Card, Text } from "react-native-paper";
 import type { Champion } from "../types/domain";
 import { getChampionImage } from "../assets/champion";
 import Svg, { Circle } from "react-native-svg";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RoleIcon } from "../icons/RoleIcon";
+import { useRunes } from "../hooks/useRunes";
+
+import DominationIcon from "../assets/secondaryRune/Domination_icon.webp";
+import InspirationIcon from "../assets/secondaryRune/Inspiration_icon.webp";
+import PrecisionIcon from "../assets/secondaryRune/Precision_icon.webp";
+import ResolveIcon from "../assets/secondaryRune/Resolve_icon.webp";
+import SorceryIcon from "../assets/secondaryRune/Sorcery_icon.webp";
 
 type Props = {
   champion: Champion;
   onPress: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 };
 
-export default function ChampionCard({ champion, onPress }: Props) {
+const STYLE_ICONS: Record<number, ImageSourcePropType> = {
+  8000: PrecisionIcon,
+  8100: DominationIcon,
+  8200: SorceryIcon,
+  8300: InspirationIcon,
+  8400: ResolveIcon,
+};
+
+const PLACEHOLDER_RUNE =
+  "https://via.placeholder.com/42x42.png?text=%F0%9F%94%A5";
+
+export default function ChampionCard({
+  champion,
+  onPress,
+  isFavorite,
+  onToggleFavorite,
+}: Props) {
+  const { runes } = useRunes();
+
   const build = champion.builds?.[0];
   const imageSource = getChampionImage(champion.name);
   const primaryRoleUpper =
@@ -20,20 +54,24 @@ export default function ChampionCard({ champion, onPress }: Props) {
       : (champion as any).role
     )?.toUpperCase?.() ?? "ALL";
 
-  const runeKeystoneSrc = {
-    uri: `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/rune/${build?.runes?.[0]}.png`,
-  };
+  const keystoneId = build?.runes?.[0];
+  const runeKeystoneUri =
+    (keystoneId != null ? runes[keystoneId]?.icon : undefined) ||
+    PLACEHOLDER_RUNE;
+
+  const secondaryStyleId = getSecondaryStyleId(build, runes);
+  const secondaryStyleIcon =
+    (secondaryStyleId && STYLE_ICONS[secondaryStyleId]) || InspirationIcon;
+
   const itemSrcs = [
-    {
-      uri: `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/item/${build?.items?.core[0]}.png`,
-    },
-    {
-      uri: `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/item/${build?.items?.core[1]}.png`,
-    },
-    {
-      uri: `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/item/${build?.items?.core[2]}.png`,
-    },
-  ];
+    build?.items?.core?.[0],
+    build?.items?.core?.[1],
+    build?.items?.core?.[2],
+  ]
+    .filter((id): id is number | string => id != null)
+    .map((id) => ({
+      uri: `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/item/${id}.png`,
+    }));
 
   return (
     <Card onPress={onPress} style={styles.card} mode="elevated">
@@ -43,13 +81,24 @@ export default function ChampionCard({ champion, onPress }: Props) {
           style={styles.left}
           imageStyle={styles.leftImg}
         >
-          <View style={styles.starBadge}>
+          <Pressable
+            style={styles.starBadge}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"
+            }
+            onPress={(e) => {
+              e.stopPropagation?.();
+              onToggleFavorite?.();
+            }}
+          >
             <MaterialCommunityIcons
-              name="star-outline"
+              name={isFavorite ? "star" : "star-outline"}
               size={16}
               color="#FF7A66"
             />
-          </View>
+          </Pressable>
 
           <View style={styles.nameRow}>
             <Text style={styles.nameText}>{champion.name}</Text>
@@ -63,14 +112,17 @@ export default function ChampionCard({ champion, onPress }: Props) {
             </View>
           </View>
         </ImageBackground>
+
         <View style={styles.right}>
           <View style={styles.topPanel}>
-            <Image source={runeKeystoneSrc} style={styles.runeIcon} />
+            <Image source={{ uri: runeKeystoneUri }} style={styles.runeIcon} />
+            <Image source={secondaryStyleIcon} style={styles.styleIcon} />
             <View style={styles.itemsRow}>
               {itemSrcs.map((src, idx) => (
                 <Image key={idx} source={src} style={styles.itemIcon} />
               ))}
             </View>
+            <View style={{ flex: 1 }} />
           </View>
 
           <View style={styles.band}>
@@ -103,6 +155,22 @@ export default function ChampionCard({ champion, onPress }: Props) {
       </View>
     </Card>
   );
+}
+
+function getSecondaryStyleId(
+  build: Champion["builds"][number] | undefined,
+  runesDb: Record<string | number, { styleId?: number }>
+): number | undefined {
+  if (!build) return undefined;
+  if (build.secondaryStyle && build.secondaryStyle !== build.primaryStyle) {
+    return build.secondaryStyle;
+  }
+  const picks = (build.runes ?? []).slice(4, 6);
+  for (const id of picks) {
+    const styleId = runesDb[id]?.styleId;
+    if (styleId && styleId !== build.primaryStyle) return styleId;
+  }
+  return undefined;
 }
 
 function Donut({
@@ -168,10 +236,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: COLORS.cardBg,
   },
-  root: {
-    flexDirection: "row",
-    alignItems: "stretch",
-  },
+  root: { flexDirection: "row", alignItems: "stretch" },
 
   left: {
     width: 140,
@@ -185,17 +250,19 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
   },
+
   starBadge: {
     position: "absolute",
     top: 8,
     left: 8,
-    width: 22,
-    height: 22,
+    width: 24,
+    height: 24,
     borderRadius: 6,
     backgroundColor: "rgba(0,0,0,0.35)",
     alignItems: "center",
     justifyContent: "center",
   },
+
   nameRow: {
     position: "absolute",
     left: 10,
@@ -205,11 +272,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  nameText: {
-    color: COLORS.name,
-    fontSize: 18,
-    fontWeight: "700",
-  },
+  nameText: { color: COLORS.name, fontSize: 18, fontWeight: "700" },
   roleBadge: {
     width: 28,
     height: 28,
@@ -233,25 +296,28 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.beige,
     flexDirection: "row",
     alignItems: "center",
+    position: "relative",
     paddingHorizontal: 12,
     gap: 12,
   },
-  runeIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 8,
+  runeIcon: { width: 42, height: 42, borderRadius: 8, zIndex: 2 },
+  styleIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 100,
+    position: "absolute",
+    top: 40,
+    left: 40,
+    zIndex: 1,
   },
+
   itemsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     marginLeft: 8,
   },
-  itemIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  },
+  itemIcon: { width: 36, height: 36, borderRadius: 18 },
 
   band: {
     height: 64,
@@ -261,18 +327,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  statsCol: {
-    flexDirection: "column",
-  },
-  statRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  statText: {
-    color: "#FFF",
-    fontWeight: "700",
-  },
+  statsCol: { flexDirection: "column" },
+  statRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  statText: { color: "#FFF", fontWeight: "700" },
 
   donutWrap: {
     width: 48,

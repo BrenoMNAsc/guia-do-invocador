@@ -21,6 +21,7 @@ export type Rune = {
   shortDescription?: string;
   icon?: string;
   styleId?: number;
+  slot?: number;
 };
 
 export type BuildItems = {
@@ -59,4 +60,11 @@ export type Filter = {
   role?: Role;
   championClass?: ChampionClass;
   name?: string;
+};
+
+export type RootStackParamList = {
+  Home: undefined;
+  Champion: { championId: string };
+  Map: undefined;
+  Share: undefined;
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { Menu, IconButton, Text } from "react-native-paper";
 
 export type MenuOption = { label: string; value: string };
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export default function MenuButton({ icon, options, onSelect, label }: Props) {
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = useState(false);
   return (
     <Menu
       visible={visible}

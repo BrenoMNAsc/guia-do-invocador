@@ -19,7 +19,6 @@ export function buildItemsDbFromGenericMap(
     return out;
   }
 
-  // Caso 2: DDragon-like { data: { [id]: { name, description, image } } }
   if (raw?.data && typeof raw.data === "object") {
     for (const [id, node] of Object.entries<any>(raw.data)) {
       out[id] = {
@@ -34,7 +33,6 @@ export function buildItemsDbFromGenericMap(
     return out;
   }
 
-  // Fallback: tente mapear chaves óbvias
   for (const [id, node] of Object.entries<any>(raw)) {
     if (node?.name) {
       const key: number | string = (node?.id ?? id) as any;

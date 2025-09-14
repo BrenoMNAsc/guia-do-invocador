@@ -1,4 +1,3 @@
-// src/theme/index.ts
 import { MD3LightTheme } from "react-native-paper";
 
 export const lightTheme = {

@@ -1,16 +1,16 @@
-import * as React from "react";
 import * as Location from "expo-location";
+import { useEffect, useState } from "react";
 
 export function useLocation() {
-  const [coords, setCoords] = React.useState<{
+  const [coords, setCoords] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [denied, setDenied] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const [denied, setDenied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let active = true;
     (async () => {
       try {

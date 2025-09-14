@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, ScrollView, Pressable, FlatList } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 import FilterBar from "../components/FilterBar";
 import { useNavigation } from "@react-navigation/native";
-import type { Role } from "../types/domain";
+import type { ChampionClass, Role } from "../types/domain";
 import { useChampions } from "../hooks/useChampions";
 import { useStyles } from "../hooks/useStyle";
 import { RoleIcon, type RoleUpper } from "../icons/RoleIcon";
@@ -11,20 +11,27 @@ import ChampionCard from "../components/ChampionCard";
 
 export default function HomeView() {
   const nav = useNavigation<any>();
-  const { theme, padding, margin, gap, scrollView, button } = useStyles();
+  const { theme, padding, gap, scrollView, button, margin } = useStyles();
 
-  const { loading, data, filter, setFilter } = useChampions();
+  const {
+    data,
+    filter,
+    setFilter,
+    favoritesOnly,
+    setFavoritesOnly,
+    isFavorite,
+    toggleFavorite,
+  } = useChampions();
 
-  // busca
-  const [search, setSearch] = React.useState(filter?.name ?? "");
-  React.useEffect(() => {
+  const [search, setSearch] = useState(filter?.name ?? "");
+  useEffect(() => {
     setFilter((prev) => ({ ...(prev ?? {}), name: search || undefined }));
   }, [search, setFilter]);
 
-  // role selecionada - agora usando RoleUpper
-  const [roleLabel, setRoleLabel] = React.useState<RoleUpper>(
+  const [roleLabel, setRoleLabel] = useState<RoleUpper>(
     (filter?.role?.toUpperCase() as RoleUpper) ?? "ALL"
   );
+
   const handleSelectRole = (role: RoleUpper) => {
     setRoleLabel(role);
     setFilter((prev) => ({
@@ -33,18 +40,27 @@ export default function HomeView() {
     }));
   };
 
-  // use valores em maiúsculo (RoleUpper)
-  const roles: Array<{ key: string; label: string; value: RoleUpper }> = [
-    { key: "ALL", label: "Todos", value: "ALL" },
-    { key: "TOP", label: "Topo", value: "TOP" },
-    { key: "JUNGLE", label: "Selva", value: "JUNGLE" },
-    { key: "MID", label: "Meio", value: "MID" },
-    { key: "ADC", label: "Atirador", value: "ADC" },
-    { key: "SUPPORT", label: "Suporte", value: "SUPPORT" },
+  const handleSelectClass = (championClass: ChampionClass | undefined) => {
+    setFilter((prev) => ({
+      ...(prev ?? {}),
+      championClass:
+        championClass === undefined
+          ? undefined
+          : (championClass.toLowerCase() as ChampionClass),
+    }));
+  };
+
+  const roles: Array<{ key: string; value: RoleUpper }> = [
+    { key: "ALL", value: "ALL" },
+    { key: "TOP", value: "TOP" },
+    { key: "JUNGLE", value: "JUNGLE" },
+    { key: "MID", value: "MID" },
+    { key: "ADC", value: "ADC" },
+    { key: "SUPPORT", value: "SUPPORT" },
   ];
 
   const handleChampionPress = (championId: string) => {
-    nav.navigate("ChampionDetails", { id: championId });
+    nav.navigate("Champion", { championId });
   };
 
   return (
@@ -84,16 +100,22 @@ export default function HomeView() {
                     alignItems: "center",
                   },
                 ]}
-                icon={(p) => <RoleIcon role={r.value} width={57} height={20} />}
+                icon={() => <RoleIcon role={r.value} width={57} height={20} />}
                 theme={{ colors: { primary: theme.colors.primary } }}
-                accessibilityLabel={r.label}
+                accessibilityLabel={r.key}
               />
             </Pressable>
           );
         })}
       </ScrollView>
 
-      <FilterBar value={search} onChange={setSearch} />
+      <FilterBar
+        value={search}
+        onChange={setSearch}
+        setClassFilter={handleSelectClass}
+        favoritesOnly={favoritesOnly}
+        onToggleFavorites={() => setFavoritesOnly(!favoritesOnly)}
+      />
 
       <FlatList
         data={data}
@@ -104,12 +126,14 @@ export default function HomeView() {
           <ChampionCard
             champion={item}
             onPress={() => handleChampionPress(item.id)}
+            isFavorite={isFavorite(item.id)}
+            onToggleFavorite={() => toggleFavorite(item.id)}
           />
         )}
         ListEmptyComponent={
           <View style={{ padding: 20, alignItems: "center" }}>
             <Text variant="bodyMedium" style={{ color: "#888" }}>
-              {loading ? "Carregando..." : "Nenhum campeão encontrado"}
+              Nenhum campeão encontrado
             </Text>
           </View>
         }

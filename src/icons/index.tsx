@@ -1,4 +1,3 @@
-// src/icons/index.ts
 export { default as AllIcon } from "../../assets/icons/all-icon.svg";
 export { default as TopIcon } from "../../assets/icons/top-icon.svg";
 export { default as MidIcon } from "../../assets/icons/mid-icon.svg";
