@@ -4,6 +4,7 @@ import { ActivityIndicator, Card, Text, IconButton } from "react-native-paper";
 import { useLocation } from "../hooks/useLocation";
 import { recommendServer, formatKm } from "../utils/servers";
 import { useState } from "react";
+import { openMaps, openSystemLocationSettings } from "../utils/intents";
 
 const COLORS = {
   bg: "#FFFFFF",
@@ -33,6 +34,14 @@ export default function MapView() {
             <Text variant="titleMedium" style={{ color: COLORS.primary }}>
               Permissão de localização negada
             </Text>
+            <IconButton
+              icon="cog"
+              onPress={openSystemLocationSettings}
+              size={22}
+              style={{ margin: 0 }}
+              iconColor={COLORS.primary}
+              accessibilityLabel="Abrir configurações de localização"
+            />
           </View>
           <Text style={{ marginTop: 8, color: COLORS.muted }}>
             Habilite a localização nas configurações do sistema.
@@ -81,14 +90,27 @@ export default function MapView() {
             <Text variant="titleMedium" style={{ color: COLORS.primary }}>
               Servidor recomendado
             </Text>
-            <IconButton
-              icon={expanded ? "chevron-down" : "chevron-up"}
-              onPress={() => setExpanded((e) => !e)}
-              size={22}
-              style={{ margin: 0 }}
-              iconColor={COLORS.primary}
-              accessibilityLabel={expanded ? "Minimizar" : "Maximizar"}
-            />
+
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <IconButton
+                icon="map-marker"
+                onPress={() =>
+                  openMaps(coords.latitude, coords.longitude, "Minha posição")
+                }
+                size={22}
+                style={{ margin: 0, marginRight: 4 }}
+                iconColor={COLORS.primary}
+                accessibilityLabel="Abrir no Maps"
+              />
+              <IconButton
+                icon={expanded ? "chevron-down" : "chevron-up"}
+                onPress={() => setExpanded((e) => !e)}
+                size={22}
+                style={{ margin: 0 }}
+                iconColor={COLORS.primary}
+                accessibilityLabel={expanded ? "Minimizar" : "Maximizar"}
+              />
+            </View>
           </View>
 
           {expanded ? (

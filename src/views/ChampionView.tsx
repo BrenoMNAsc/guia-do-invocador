@@ -10,17 +10,16 @@ import {
   Divider,
   Card,
   ActivityIndicator,
-  Chip,
   IconButton,
 } from "react-native-paper";
 import type { BuildSpec, Rune } from "../types/domain";
 import { useChampionDetails } from "../hooks/useChampionDetails";
 import { useRunes } from "../hooks/useRunes";
 import { useItems } from "../hooks/useItems";
-import { useContacts } from "../hooks/useContacts";
 import { getChampionImage } from "../assets/champion";
 import { getKeystonesForPrimaryAndSecondary, STYLE_IDS } from "../utils/runes";
 import { ReactNode, useCallback, useMemo } from "react";
+import { shareBuild, openChampionWiki } from "../utils/intents";
 
 export type ChampionViewProps = { id: string };
 
@@ -103,9 +102,7 @@ function groupMinorBySlot(
   for (const r of Object.values(runesDb)) {
     if (r.styleId !== styleId) continue;
     const slot = (r as any).slot;
-    if (slot === 1 || slot === 2 || slot === 3) {
-      out[slot as 1 | 2 | 3].push(r);
-    }
+    if (slot === 1 || slot === 2 || slot === 3) out[slot as 1 | 2 | 3].push(r);
   }
   (Object.keys(out) as Array<"1" | "2" | "3">).forEach((k) =>
     out[k as unknown as 1 | 2 | 3].sort((a, b) =>
@@ -223,7 +220,6 @@ export default function ChampionView({ id }: ChampionViewProps) {
   const { data: champion, isLoading } = useChampionDetails({ id });
   const { runes } = useRunes();
   const { items } = useItems();
-  const { share } = useContacts();
 
   const build: BuildSpec | null = useMemo(() => {
     if (!champion?.builds?.length) return null;
@@ -302,8 +298,8 @@ export default function ChampionView({ id }: ChampionViewProps) {
       runes,
       items,
     });
-    share(msg);
-  }, [champion, build, runes, items, share]);
+    shareBuild(msg);
+  }, [champion, build, runes, items]);
 
   if (isLoading) {
     return (
@@ -334,6 +330,7 @@ export default function ChampionView({ id }: ChampionViewProps) {
         <View style={styles.headerOverlay}>
           <Text style={styles.headerName}>{champion.name}</Text>
         </View>
+
         <IconButton
           icon="share-variant"
           size={22}
@@ -342,6 +339,18 @@ export default function ChampionView({ id }: ChampionViewProps) {
           containerColor="rgba(0,0,0,0.45)"
           iconColor="#fff"
           style={styles.shareBtn}
+          accessibilityLabel="Compartilhar build"
+        />
+
+        <IconButton
+          icon="book-open-variant"
+          size={22}
+          onPress={() => openChampionWiki(champion.name)}
+          mode="contained"
+          containerColor="rgba(0,0,0,0.45)"
+          iconColor="#fff"
+          style={[styles.shareBtn, { right: 52 }]}
+          accessibilityLabel="Abrir wiki do campeão"
         />
       </ImageBackground>
 
@@ -425,10 +434,7 @@ export default function ChampionView({ id }: ChampionViewProps) {
 const placeholderRune = "https://via.placeholder.com/40x40.png?text=R";
 const placeholderItem = "https://via.placeholder.com/40x40.png?text=I";
 
-const COLORS = {
-  bg: "#FFFFFF",
-  section: "#FF8A65",
-};
+const COLORS = { bg: "#FFFFFF", section: "#FF8A65" };
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: COLORS.bg },
