@@ -52,9 +52,7 @@ export default function RootNavigation() {
           headerShadowVisible: false,
           headerTitleAlign: "left",
           headerBackTitleVisible: false,
-          // não mostra o nome da página: título de branding fixo
           headerTitle: () => <AppTitle />,
-          // botão de mapa no topo direito
           headerRight: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate("Map")}
