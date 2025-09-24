@@ -49,7 +49,6 @@ export type Champion = {
   id: string;
   key: string;
   name: string;
-  portrait: string;
   roles: Role[];
   classes: ChampionClass[];
   builds: BuildSpec[];

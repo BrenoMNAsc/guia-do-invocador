@@ -47,7 +47,7 @@ export default function ChampionCard({
   const { runes } = useRunes();
 
   const build = champion.builds?.[0];
-  const imageSource = getChampionImage(champion.name);
+  const imageSource = getChampionImage(champion.id);
   const primaryRoleUpper =
     (Array.isArray((champion as any).roles)
       ? (champion as any).roles[0]

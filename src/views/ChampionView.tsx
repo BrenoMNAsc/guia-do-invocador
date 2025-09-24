@@ -227,7 +227,7 @@ export default function ChampionView({ id }: ChampionViewProps) {
   }, [champion]);
 
   const headerImg = useMemo(
-    () => (champion ? getChampionImage(champion.name) : undefined),
+    () => (champion ? getChampionImage(champion.id) : undefined),
     [champion]
   );
 

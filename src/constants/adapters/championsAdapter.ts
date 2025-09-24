@@ -14,25 +14,26 @@ const normalize = (s: string) =>
 
 function inferRoles(tags: string[]): Role[] {
   const set = new Set<Role>();
-  for (const t of tags) {
-    switch (t) {
-      case "Marksman":
-        set.add("ADC");
-        break;
-      case "Support":
-        set.add("SUPPORT");
-        break;
-      case "Assassin":
-      case "Mage":
-        set.add("MID");
-        break;
-      case "Fighter":
-      case "Tank":
-        set.add("TOP");
-        break;
-      default:
-        break;
-    }
+  const t = tags[0];
+  switch (t) {
+    case "Marksman":
+      set.add("ADC");
+      break;
+    case "Support":
+      set.add("SUPPORT");
+      break;
+    case "Mage":
+      set.add("MID");
+      break;
+    case "Fighter":
+    case "Tank":
+      set.add("TOP");
+      break;
+    case "Assassin":
+      if (!tags.includes("Mage")) set.add("JUNGLE");
+      break;
+    default:
+      break;
   }
   if (set.size === 0) set.add("TOP");
   return Array.from(set);
@@ -146,15 +147,11 @@ export function buildChampionsFromDdragonJson(json: any): Champion[] {
     const id: string = node?.id ?? node?.name ?? "";
     const key: string = node?.key ?? "";
     const name: string = node?.name ?? id;
-    const portrait = node?.image?.full
-      ? `https://ddragon.leagueoflegends.com/cdn/15.17.1/img/champion/${node.image.full}`
-      : `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${id}_0.jpg`;
 
     const champion: Champion = {
       id,
       key,
       name,
-      portrait,
       roles,
       classes,
       builds: [synthBestBuildFor(id, roles)],

@@ -1,5 +1,6 @@
 import Aatrox from "./Aatrox_0.jpg";
 import Ahri from "./Ahri_0.jpg";
+import Aurora from "./Aurora_0.jpg";
 import Akali from "./Akali_0.jpg";
 import Akshan from "./Akshan_0.jpg";
 import Alistar from "./Alistar_0.jpg";
@@ -30,7 +31,7 @@ import Ekko from "./Ekko_0.jpg";
 import Elise from "./Elise_0.jpg";
 import Evelynn from "./Evelynn_0.jpg";
 import Ezreal from "./Ezreal_0.jpg";
-import FiddleSticks from "./FiddleSticks_0.jpg";
+import Fiddlesticks from "./Fiddlesticks_0.jpg";
 import Fiora from "./Fiora_0.jpg";
 import Fizz from "./Fizz_0.jpg";
 import Galio from "./Galio_0.jpg";
@@ -163,10 +164,21 @@ import Ziggs from "./Ziggs_0.jpg";
 import Zilean from "./Zilean_0.jpg";
 import Zoe from "./Zoe_0.jpg";
 import Zyra from "./Zyra_0.jpg";
+import Hwei from "./Hwei_0.jpg";
+import Mel from "./Mel_0.jpg";
+import Rammus from "./Rammus_0.jpg";
+import Smolder from "./Smolder_0.jpg";
+import Yunara from "./Yunara_0.jpg";
 
 export const championImages: Record<string, any> = {
+  Rammus,
+  Yunara,
+  Smolder,
+  Mel,
   Aatrox,
+  Hwei,
   Ahri,
+  Aurora,
   Akali,
   Akshan,
   Alistar,
@@ -197,7 +209,7 @@ export const championImages: Record<string, any> = {
   Elise,
   Evelynn,
   Ezreal,
-  FiddleSticks,
+  Fiddlesticks,
   Fiora,
   Fizz,
   Galio,

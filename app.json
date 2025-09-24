@@ -16,7 +16,9 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Usamos sua localização para mostrar sua posição no mapa e sugerir o melhor servidor.",
         "NSContactsUsageDescription": "Usamos seus contatos para facilitar o compartilhamento de builds.",
-        "UIBackgroundModes": ["fetch"]
+        "UIBackgroundModes": [
+          "fetch"
+        ]
       }
     },
     "android": {
@@ -29,10 +31,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.brieno.guiadoinvocador"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1d95848e-9df5-42af-8d60-3b77d4d416c7"
+      }
     }
   }
 }

@@ -1,7 +1,6 @@
 import { View } from "react-native";
 import { ActivityIndicator, Modal, Portal, Text } from "react-native-paper";
 import { useStyles } from "../hooks/useStyle";
-import { useEffect } from "react";
 
 interface LoadingOverlayProps {
   visible: boolean;
