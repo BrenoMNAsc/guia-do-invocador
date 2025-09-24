@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "guia-do-invocador",
+    "name": "Guia do Invocador",
     "slug": "guia-do-invocador",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,9 +16,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Usamos sua localização para mostrar sua posição no mapa e sugerir o melhor servidor.",
         "NSContactsUsageDescription": "Usamos seus contatos para facilitar o compartilhamento de builds.",
-        "UIBackgroundModes": [
-          "fetch"
-        ]
+        "UIBackgroundModes": ["fetch"]
       }
     },
     "android": {
